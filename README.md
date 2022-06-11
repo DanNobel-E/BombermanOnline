@@ -32,7 +32,7 @@ Right click on Content Browser or inherit from BBMWorldPreset to instantiate you
 
 ![Bomberman - Unreal Editor 18_05_2022 00_04_54](https://user-images.githubusercontent.com/60443583/173185864-bf5dd74e-5bf7-4bcf-ae9a-127fa7ae739d.png)
 
-> **Search for *BombermanEditorPluginConte/Textures* directory to find some example texture to try, or add more on your own.**
+> **Search for *BombermanEditorPluginContent/Textures* directory to find some example texture to try, or add more on your own.**
 
 ![Captures 18_05_2022 00_14_24](https://user-images.githubusercontent.com/60443583/173186420-4362d279-56e1-4d28-937c-dbbb877ba447.png)
 
@@ -42,5 +42,30 @@ https://user-images.githubusercontent.com/60443583/173186519-d7b21873-bd5a-4724-
 
 
 ## Bomberman Online Demo
+
+A simple Bomberman inspired game demo with Unreal online implementation.
+
+Main features:
+
+* Four Players online multiplayer match.
+* Player movements and animations implemented via Unreal Blueprints (meshes and animation clips imported from [mixamo](https://www.mixamo.com/)).
+* Players can shoot bombs with a max range of two bombs at the same time for each. 
+* Bombs fx inspired by original Bomberman game.
+* Bombs can destroy breakable walls.
+
+> *BombermanEditorPluginContent* directory contains template blueprint classes for Player, Bomb, Breakable Wall and more.
+
+
+https://user-images.githubusercontent.com/60443583/173187072-9101acde-0ba1-4785-a33c-081033d6ef7f.mp4
+
+
+https://user-images.githubusercontent.com/60443583/173187074-160024ae-8053-4705-a191-77d618cc8ce0.mp4
+
+
+https://user-images.githubusercontent.com/60443583/173187129-0d8515b1-9d8f-4815-9a15-54115c5f2252.mp4
+
+
+
+
 
 
