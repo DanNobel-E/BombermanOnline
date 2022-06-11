@@ -1,0 +1,25 @@
+{
+	"FileVersion": 3,
+	"EngineAssociation": "4.27",
+	"Category": "",
+	"Description": "",
+	"Modules": [
+		{
+			"Name": "Bomberman",
+			"Type": "Runtime",
+			"LoadingPhase": "Default"
+		},
+
+		{
+			"Name": "BombermanEditorPlugin",
+			"Type": "Editor",
+			"LoadingPhase": "PreDefault"
+		},
+
+		{
+			"Name": "BombermanPlugin",
+			"Type": "Runtime",
+			"LoadingPhase": "Default"
+		}
+	]
+}
