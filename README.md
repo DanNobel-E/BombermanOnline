@@ -32,6 +32,13 @@ Right click on Content Browser or inherit from BBMWorldPreset to instantiate you
 
 ![Bomberman - Unreal Editor 18_05_2022 00_04_54](https://user-images.githubusercontent.com/60443583/173185864-bf5dd74e-5bf7-4bcf-ae9a-127fa7ae739d.png)
 
+> **Search for *BombermanEditorPluginConte/Textures* directory to find some example texture to try, or add more on your own.**
+
+![Captures 18_05_2022 00_14_24](https://user-images.githubusercontent.com/60443583/173186420-4362d279-56e1-4d28-937c-dbbb877ba447.png)
+
+
+https://user-images.githubusercontent.com/60443583/173186519-d7b21873-bd5a-4724-91d4-2b47afdfc971.mp4
+
 
 
 ## Bomberman Online Demo
