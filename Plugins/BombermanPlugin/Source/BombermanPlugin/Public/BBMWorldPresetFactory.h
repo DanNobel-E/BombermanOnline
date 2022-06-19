@@ -6,8 +6,11 @@
 #include "CoreMinimal.h"
 #include "AssetRegistryModule.h"
 #include "Factories/Factory.h"
+#include "PackageHelperFunctions.h"
+#include "AssetRegistry/AssetRegistryHelpers.h"
+#include "AssetToolsModule.h"
+#include "ContentBrowserModule.h"
 #include "BBMWorldPresetFactory.generated.h"
-
 /**
  * 
  */

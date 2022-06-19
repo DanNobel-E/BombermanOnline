@@ -71,16 +71,16 @@ TSharedRef<SDockTab> FBBMWorldPresetEditor::SpawnPropertiesTab(const FSpawnTabAr
 		[
 			DetailsView.ToSharedRef()
 		]
-	+ SVerticalBox::Slot()
-		.AutoHeight()
-		.VAlign(EVerticalAlignment::VAlign_Bottom)
-		[
-			SNew(SButton)
-			.Text(FText::FromString("Generate World"))
-			.HAlign(EHorizontalAlignment::HAlign_Center)
-			.VAlign(EVerticalAlignment::VAlign_Center)
-			.ContentPadding(FMargin(10,10))
-			.OnPressed_Raw(this,&FBBMWorldPresetEditor::OnGenerateWorldClicked)
+			+ SVerticalBox::Slot()
+			.AutoHeight()
+			.VAlign(EVerticalAlignment::VAlign_Bottom)
+			[
+				SNew(SButton)
+				.Text(FText::FromString("Generate World"))
+				.HAlign(EHorizontalAlignment::HAlign_Center)
+				.VAlign(EVerticalAlignment::VAlign_Center)
+				.ContentPadding(FMargin(10,10))
+				.OnPressed_Raw(this,&FBBMWorldPresetEditor::OnGenerateWorldClicked)
 		]
 		];
 }
@@ -91,18 +91,11 @@ TSharedRef<SDockTab> FBBMWorldPresetEditor::SpawnViewportTab(const FSpawnTabArgs
 	// Make sure we have the correct tab id
 	check(Args.GetTabId() == ViewportTabId);
 
-
-	Viewport = SNew(SBBMEditorViewport);
-	ViewportClient = Viewport->ViewportClient;
-	/*ViewportWidget = Viewport->GetViewportWidget();
-	SceneViewport = MakeShareable(new FSceneViewport(static_cast<FEditorViewportClient*>(ViewportClient.Get()), ViewportWidget));
-	Viewport->SetSceneViewport(SceneViewport);
-	ViewportClient->Viewport = SceneViewport.Get();
-	static_cast<SBBMViewportWidget*>(ViewportWidget.Get())->SetViewportClient(ViewportClient);
-	static_cast<SBBMViewportWidget*>(ViewportWidget.Get())->SetSceneViewport(SceneViewport);
-	ViewportWidget->SetViewportInterface(SceneViewport.ToSharedRef());
-	ViewportWidget->SetCanTick(true);*/
-
+	if (!Viewport.IsValid())
+	{
+		Viewport = SNew(SBBMEditorViewport);
+		ViewportClient = Viewport->ViewportClient;
+	}
 	
 
 	// Return a new slate dockable tab that contains our details view
@@ -111,29 +104,19 @@ TSharedRef<SDockTab> FBBMWorldPresetEditor::SpawnViewportTab(const FSpawnTabArgs
 		.Label(LOCTEXT("GenericViewportTitle", "Viewport"))
 		.TabColorScale(GetTabColorScale())
 		[
-			/*SNew(SOverlay)
+			SNew(SOverlay)
 			+SOverlay::Slot()
-			[*/
+			[
 
 				Viewport.ToSharedRef()
 				
 			
-			/*]*/
-		/*+ SOverlay::Slot()
-		[
-
-			ViewportWidget.ToSharedRef()
-
-		
-		]*/
-			
+			]
 				
 
 		];
 
-	ViewportTabRef->SetContent(Viewport.ToSharedRef());
 	
-
 		
 	return ViewportTabRef.ToSharedRef();
 }
@@ -181,6 +164,19 @@ void FBBMWorldPresetEditor::SetWorldPreset(UBBMWorldPreset* InWorldPreset)
 	WorldPreset = InWorldPreset;
 }
 
+void FBBMWorldPresetEditor::SaveAsset_Execute()
+{
+	if (WorldPreset)
+	{
+		
+		UPackage* Package = WorldPreset->GetPackage();
+		SavePackageHelper(Package, Package->GetName());
+
+	}
+
+}
+
+
 void FBBMWorldPresetEditor::InitBBMWorldPresetEditor(const EToolkitMode::Type Mode, const TSharedPtr<class IToolkitHost>& InitToolkitHost, UBBMWorldPreset* InWorldPreset)
 {
 	// Cache some values that will be used for our details view arguments
@@ -190,12 +186,14 @@ void FBBMWorldPresetEditor::InitBBMWorldPresetEditor(const EToolkitMode::Type Mo
 
 	// Set this InCustomAsset as our editing asset
 	SetWorldPreset(InWorldPreset);
+	WorldPreset->Modify();
 
 	// Retrieve the property editor module and assign properties to DetailsView
 	FPropertyEditorModule& PropertyEditorModule = FModuleManager::GetModuleChecked<FPropertyEditorModule>("PropertyEditor");
 	const FDetailsViewArgs DetailsViewArgs(bIsUpdatable, bIsLockable, true, FDetailsViewArgs::ObjectsUseNameArea, false);
 	DetailsView = PropertyEditorModule.CreateDetailView(DetailsViewArgs);
-
+	DetailsView->ForceRefresh();
+	
 	
 	
 	// Create the layout of our custom asset editor
@@ -270,7 +268,7 @@ void FBBMWorldPresetEditor::OnGenerateWorldClicked()
 
 		NewWorld->PostEditChange();
 		NewWorld->MarkPackageDirty();
-
+		
 		
 		if (NewWorld)
 		{

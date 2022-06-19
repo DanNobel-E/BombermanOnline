@@ -31,7 +31,7 @@ void FAssetTypeActions_BBMWorldPreset::OpenAssetEditor(const TArray<UObject*>& I
 
 	for (auto ObjIt = InObjects.CreateConstIterator(); ObjIt; ++ObjIt)
 	{
-		auto MyWorldPreset = Cast<UBBMWorldPreset>(*ObjIt);
+		UBBMWorldPreset* MyWorldPreset = Cast<UBBMWorldPreset>(*ObjIt);
 		if (MyWorldPreset != NULL)
 		{
 			IBBMWorldPresetEditorModule* CustomAssetEditorModule = &FModuleManager::LoadModuleChecked<IBBMWorldPresetEditorModule>("BombermanEditorPlugin");

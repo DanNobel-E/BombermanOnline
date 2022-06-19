@@ -9,7 +9,7 @@
 #include "Widgets/SViewport.h"
 #include "Slate/SceneViewport.h"
 #include "Templates/SharedPointer.h"
-
+#include "Editor/UnrealEd/Public/SCommonEditorViewportToolbarBase.h"
 
 
 
@@ -17,30 +17,9 @@
 class FBBMViewportClient;
 class FAdvancedPreviewScene;
 
-class SBBMViewportWidget : public SViewport
-{
-	SLATE_BEGIN_ARGS(SBBMViewportWidget)
-	{
-	}
-	SLATE_END_ARGS()
-
-	void Construct(const FArguments& InArgs);
-
-	virtual void Tick(const FGeometry& AllottedGeometry, const double InCurrentTime, const float InDeltaTime) override;
-
-	void SetSceneViewport(TSharedPtr<FSceneViewport> InSceneViewport);
-
-	void SetViewportClient(TSharedPtr<FBBMViewportClient> InViewportClient);
 
 
-public:
-	TWeakPtr<FSceneViewport> SceneViewport;
-	TWeakPtr<FBBMViewportClient> ViewportClient;
-};
-
-
-
-class  SBBMEditorViewport : public SEditorViewport
+class  SBBMEditorViewport : public SEditorViewport, public ICommonEditorViewportToolbarInfoProvider
 {
 	SLATE_BEGIN_ARGS(SBBMEditorViewport)
 	{
@@ -58,7 +37,6 @@ public:
 
 	virtual TSharedRef<FEditorViewportClient> MakeEditorViewportClient() override;
 
-	virtual TSharedPtr<SViewport> GetViewportWidget();
 
 	virtual void SetWorld(UWorld* InWorld);
 
@@ -69,9 +47,15 @@ public:
 	virtual void SetClient(TSharedPtr<FBBMViewportClient> InViewportClient);
 
 
-	TSharedPtr<FBBMViewportClient>ViewportClient;
+	virtual TSharedRef<class SEditorViewport> GetViewportWidget() override;
+	virtual TSharedPtr<FExtender> GetExtenders() const override;
+	virtual void OnFloatingButtonClicked() override;
 
-	TSharedPtr<FPreviewScene> PreviewScene;
+	void BindCommands() override;
+	void OnFocusViewportToSelection() override;
+
+	TSharedPtr<class FBBMViewportClient> ViewportClient;
+	TSharedPtr<FAdvancedPreviewScene> PreviewScene;
 	UWorld* World;
 
 };
@@ -81,7 +65,7 @@ class  FBBMViewportClient : public FEditorViewportClient, public TSharedFromThis
 {
 public:
 
-	FBBMViewportClient(const TSharedPtr<SBBMEditorViewport>& InBBMEditorViewport, TSharedRef<FAdvancedPreviewScene> InPreviewScene, UWorld* InWorld);
+	FBBMViewportClient(const TSharedRef<SBBMEditorViewport>& InBBMEditorViewport, const TSharedRef<FAdvancedPreviewScene>& InPreviewScene, UWorld* InWorld);
 	~FBBMViewportClient();
 
 	virtual void Tick(float DeltaSeconds) override;

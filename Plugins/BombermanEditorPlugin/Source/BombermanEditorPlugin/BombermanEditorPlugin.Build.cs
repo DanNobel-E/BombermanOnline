@@ -47,6 +47,8 @@ public class BombermanEditorPlugin : ModuleRules
 				"AssetRegistry",
 				"BombermanPlugin",
 				"LevelEditor",
+				"AssetTools",
+				"ContentBrowser"
 				// ... add other public dependencies that you statically link with here ...
 			}
 			);

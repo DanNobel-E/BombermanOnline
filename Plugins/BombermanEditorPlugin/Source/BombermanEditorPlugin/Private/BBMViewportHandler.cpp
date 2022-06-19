@@ -4,43 +4,17 @@
 #include "AdvancedPreviewScene.h"
 #include "Templates/SharedPointerInternals.h"
 
-void SBBMViewportWidget::Construct(const FArguments& InArgs)
-{
 
-}
-
-
-void SBBMViewportWidget::Tick(const FGeometry& AllottedGeometry, const double InCurrentTime, const float InDeltaTime)
-{
-	if (ViewportClient.IsValid())
-	{
-		ViewportClient.Pin()->Tick(InDeltaTime);
-	}
-
-	if (SceneViewport.IsValid())
-	{
-		//SceneViewport.Pin()->Invalidate();
-	}
-}
-
-void SBBMViewportWidget::SetSceneViewport(TSharedPtr<FSceneViewport> InSceneViewport)
-{
-	SceneViewport = InSceneViewport;
-}
-
-void SBBMViewportWidget::SetViewportClient(TSharedPtr<FBBMViewportClient> InViewportClient)
-{
-	ViewportClient = InViewportClient;
-}
-
-
-SBBMEditorViewport::SBBMEditorViewport()
+SBBMEditorViewport::SBBMEditorViewport() : PreviewScene(MakeShareable(new FAdvancedPreviewScene(FPreviewScene::ConstructionValues())))
 {
 
 }
 SBBMEditorViewport::~SBBMEditorViewport()
 {
-
+	if (ViewportClient.IsValid())
+	{
+		ViewportClient->Viewport = nullptr;
+	}
 
 }
 
@@ -48,7 +22,7 @@ void SBBMEditorViewport::Tick(const FGeometry& AllottedGeometry, const double In
 {
 	if (ViewportClient.IsValid())
 	{
-		//ViewportClient->DeltaTime = InDeltaTime;
+
 		ViewportClient->Tick(InDeltaTime);
 		
 	}
@@ -59,15 +33,8 @@ void SBBMEditorViewport::Tick(const FGeometry& AllottedGeometry, const double In
 
 void SBBMEditorViewport::Construct(const FArguments& InArgs)
 {
-	FPreviewScene::ConstructionValues Vals;
-	Vals.bDefaultLighting = true;
-	Vals.bEditor = true;
-	PreviewScene = MakeShareable(new FPreviewScene(Vals));
-	SetCanTick(true);
-	//SetClipping(EWidgetClipping::ClipToBounds);*/
-	/*ViewportWidget = SNew(SBBMViewportWidget)
-		.Clipping(EWidgetClipping::ClipToBounds)
-		.Visibility(EVisibility::Visible);*/
+	SEditorViewport::Construct(SEditorViewport::FArguments());
+	
 
 	World = PreviewScene->GetWorld();
 
@@ -108,17 +75,38 @@ void SBBMEditorViewport::SetClient(TSharedPtr<FBBMViewportClient> InViewportClie
 TSharedRef<FEditorViewportClient> SBBMEditorViewport::MakeEditorViewportClient()
 {
 	
-	FBBMViewportClient* NewClient = new FBBMViewportClient(SharedThis(this), StaticCastSharedPtr<FAdvancedPreviewScene>(PreviewScene).ToSharedRef(), World);
+	FBBMViewportClient* NewClient = new FBBMViewportClient(SharedThis(this), PreviewScene.ToSharedRef(), World);
 	ViewportClient = MakeShareable(NewClient);
-	SetClient(ViewportClient);
 	return ViewportClient.ToSharedRef();
 
 }
 
-TSharedPtr<SViewport> SBBMEditorViewport::GetViewportWidget()
+void SBBMEditorViewport::BindCommands()
 {
-	return ViewportWidget;
+	SEditorViewport::BindCommands();
 }
+
+void SBBMEditorViewport::OnFocusViewportToSelection()
+{
+
+}
+void SBBMEditorViewport::OnFloatingButtonClicked()
+{
+
+}
+
+
+TSharedRef<SEditorViewport> SBBMEditorViewport::GetViewportWidget()
+{
+	return SharedThis(this);
+}
+
+TSharedPtr<FExtender> SBBMEditorViewport::GetExtenders() const
+{
+	TSharedPtr<FExtender> Result = MakeShareable(new FExtender);
+	return Result;
+}
+
 
 void SBBMEditorViewport::SetWorld(UWorld* InWorld)
 {
@@ -132,46 +120,64 @@ void SBBMEditorViewport::SetWorld(UWorld* InWorld)
 		World = InWorld;
 	}
 }
-FBBMViewportClient::FBBMViewportClient(const TSharedPtr<SBBMEditorViewport>& InBBMEditorViewport,  TSharedRef<FAdvancedPreviewScene> InPreviewScene, UWorld* InWorld)
-	: FEditorViewportClient(nullptr, &InPreviewScene.Get(), StaticCastSharedPtr<SEditorViewport>(InBBMEditorViewport))
+FBBMViewportClient::FBBMViewportClient(const TSharedRef<SBBMEditorViewport>& InBBMEditorViewport, const TSharedRef<FAdvancedPreviewScene>& InPreviewScene, UWorld* InWorld)
+	: FEditorViewportClient(nullptr, &InPreviewScene.Get(), StaticCastSharedRef<SEditorViewport>(InBBMEditorViewport))
 	, BBMEditorViewportPtr(InBBMEditorViewport)
 {
-	GridSize = 2048.0f;
-	CellSize = 16;
-
+	AdvancedPreviewScene = MakeShareable(static_cast<FAdvancedPreviewScene*>(PreviewScene));//&InPreviewScene.Get();
 	EditorViewportWidget = BBMEditorViewportPtr;
-
-	SetRealtime(true);
-	ShowWidget(true);
-	SetViewMode(VMI_Lit);
-	SetIsSimulateInEditorViewport(true);
-	/** True if we should draw stats over the viewport */
-	bShowStats = true;
-
 	
 	bUsesDrawHelper= true;
-
-	/** True if this level viewport canbe used to view Simulate in Editor sessions */
+	SetRealtime(true);
 	
-
-	bUsingOrbitCamera = true;
-
 	DrawHelper.bDrawPivot = true;
+	DrawHelper.bDrawGrid = true;
+	DrawHelper.AxesLineThickness = 5.f;
+	DrawHelper.PivotSize = 5.f;
 	DrawHelper.bDrawWorldBox = true;
 	DrawHelper.bDrawKillZ = false;
-	DrawHelper.bDrawGrid = true;
 	DrawHelper.GridColorAxis = FColor(160, 160, 160);
 	DrawHelper.GridColorMajor = FColor(144, 144, 144);
 	DrawHelper.GridColorMinor = FColor(128, 128, 128);
 	DrawHelper.PerspectiveGridSize = 2048;
 	DrawHelper.NumCells = DrawHelper.PerspectiveGridSize / (16 * 2);
 
+	AdvancedPreviewScene->SetFloorVisibility(false);
 
-	AdvancedPreviewScene = MakeShareable(static_cast<FAdvancedPreviewScene*>(PreviewScene));//&InPreviewScene.Get();
-	World = InWorld;
-	SetWorld(World);
+	SetViewLocation(FVector(75, 75, 75));
+	SetViewRotation(FVector(-75, -75, -75).Rotation());
+	EngineShowFlags.SetScreenPercentage(true);
 
+	ELevelViewportType Type = LVT_Perspective;
+	SetViewportType(Type);
+	SetViewModes(VMI_Lit, VMI_Lit);
+
+	EngineShowFlags.SetPostProcessMaterial(true);
+	EngineShowFlags.SetPostProcessing(true);
+
+	
+	ShowWidget(true);
+	SetIsSimulateInEditorViewport(true);
+
+	GridSize = 2048.f;
+	CellSize = 16;
+
+	bShowStats = true;
+	bUsingOrbitCamera = true;
 	SetCameraSpeedScalar(1000);
+
+	/** True if we should draw stats over the viewport */
+
+	
+
+	/** True if this level viewport canbe used to view Simulate in Editor sessions */
+	
+
+
+
+	//World = InWorld;
+	//SetWorld(InWorld);
+
 
 
 }
@@ -210,7 +216,6 @@ void FBBMViewportClient::Draw(const FSceneView* View, FPrimitiveDrawInterface* P
 {
 	FEditorViewportClient::Draw(View, PDI);
 
-	//TSharedPtr<IBBMWorldPresetEditor> BBMEditor = BBMEditorPtr.Pin();
 
 }
 
@@ -225,22 +230,29 @@ bool FBBMViewportClient::InputKey(const FInputKeyEventArgs& EventArgs)
 	FVector Translation = FVector(0, 0, 0);
 	FRotator Rotator = FRotator::ZeroRotator;
 
-
-	if (EventArgs.Key == EKeys::W)
+	if (EventArgs.Event == EInputEvent::IE_Repeat)
 	{
-		Translation.X = 1;
-		MoveViewportCamera(Translation.GetSafeNormal() * GetCameraSpeed(),Rotator);
-		return true;
+
+
+		if (EventArgs.Key == EKeys::W)
+		{
+			Translation.Z = 1;
+			MoveViewportCamera(FVector::ZeroVector, Translation.Rotation());
+			return true;
+		}
+
+
+		if (EventArgs.Key == EKeys::S)
+		{
+			Translation.Z = -1;
+			MoveViewportCamera(FVector::ZeroVector, Translation.Rotation());
+			return true;
+		}
+
+
 	}
 
-
-	if (EventArgs.Key == EKeys::S)
-	{
-		Translation.X = -1;
-		MoveViewportCamera(Translation.GetSafeNormal() * GetCameraSpeed(), Rotator);
-		return true;
-	}
-
+	
 	return false;
 }
 

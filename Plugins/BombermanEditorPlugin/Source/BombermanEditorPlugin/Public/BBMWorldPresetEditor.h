@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Editor/PropertyEditor/Public/PropertyEditorDelegates.h"
 #include "IBBMWorldPresetEditor.h"
+#include "PackageHelperFunctions.h"
 #include "Slate/SceneViewport.h"
 #include "Tickable.h"
 #include "Toolkits/AssetEditorToolkit.h"
@@ -51,6 +52,8 @@ public:
 	/** End ICustomAssetEditor initerface */
 
 	virtual void OnGenerateWorldClicked();
+
+	virtual void SaveAsset_Execute() override;
 
 	UWorld* ViewportWorld;
 
