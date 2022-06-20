@@ -6,7 +6,19 @@
 #include "Engine/StaticMeshActor.h"
 #include "GameFramework/PlayerStart.h"
 #include "UObject/NoExportTypes.h"
+
+#include "Atmosphere/AtmosphericFog.h"
+#include "Engine/DirectionalLight.h"
+#include "Engine/SphereReflectionCapture.h"
+#include "Factories/Factory.h"
+#include "Factories/WorldFactory.h"
+#include "ImageUtils.h"
+#include "ThumbnailRendering/WorldThumbnailInfo.h"
+
+
 #include "BBMWorldPreset.generated.h"
+
+
 
 /**
  * 
@@ -18,6 +30,9 @@ class BOMBERMANPLUGIN_API UBBMWorldPreset : public UObject
 public:
 
 	UBBMWorldPreset();
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings")
+	float ColorTolerance;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings")
 		TMap<FString, FColor> PresetColorPattern;
 
@@ -35,4 +50,13 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Light")
 	FTransform MainLightTransform;
+
+
+	UFUNCTION(BlueprintCallable, Category = "Utils")
+	UWorld* SpawnWorldActors(UWorld* InWorld, const int32 WorldUnit = 100);
+
+	TArray<FColor> GetTexturePixels(int32& InWidth, int32& InHeight);
+	void CreateWorldFromTextureData(UWorld* InWorld, const TArray<FColor> Pixels, const int32 InWidth, const int32 InHeight, const int32 WorldUnit);
+	bool IsColorInToleranceRange(const FColor& InColorA, const FColor& InColorB, const float Tolerance);
+	bool SpawnPreset(UWorld* InWorld, const FString& PresetKey, const FColor& InColor, const FTransform& InTransform);
 };

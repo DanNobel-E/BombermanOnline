@@ -12,8 +12,6 @@
 #include "Editor/UnrealEd/Public/SCommonEditorViewportToolbarBase.h"
 
 
-
-
 class FBBMViewportClient;
 class FAdvancedPreviewScene;
 
@@ -38,8 +36,6 @@ public:
 	virtual TSharedRef<FEditorViewportClient> MakeEditorViewportClient() override;
 
 
-	virtual void SetWorld(UWorld* InWorld);
-
 	virtual void SetSceneViewport(TSharedPtr<FSceneViewport> InSceneViewport);
 	
 	virtual void SetViewportClient(TSharedPtr<FBBMViewportClient> InViewportClient);
@@ -56,7 +52,6 @@ public:
 
 	TSharedPtr<class FBBMViewportClient> ViewportClient;
 	TSharedPtr<FAdvancedPreviewScene> PreviewScene;
-	UWorld* World;
 
 };
 
@@ -65,7 +60,7 @@ class  FBBMViewportClient : public FEditorViewportClient, public TSharedFromThis
 {
 public:
 
-	FBBMViewportClient(const TSharedRef<SBBMEditorViewport>& InBBMEditorViewport, const TSharedRef<FAdvancedPreviewScene>& InPreviewScene, UWorld* InWorld);
+	FBBMViewportClient(const TSharedRef<SBBMEditorViewport>& InBBMEditorViewport, const TSharedRef<FAdvancedPreviewScene>& InPreviewScene);
 	~FBBMViewportClient();
 
 	virtual void Tick(float DeltaSeconds) override;
@@ -74,11 +69,8 @@ public:
 
 	virtual bool InputKey(const FInputKeyEventArgs& EventArgs) override;
 
-	virtual void SetWorld(UWorld* InWorld);
-
 
 	float DeltaTime;
-	UWorld* World;
 	float GridSize;
 	int32 CellSize;
 

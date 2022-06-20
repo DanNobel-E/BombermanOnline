@@ -30,39 +30,14 @@ UObject* UBBMWorldFactory::FactoryCreateFile(UClass* InClass, UObject* InParent,
 	NewWorld->SetFlags(Flags);
 	NewWorld->ThumbnailInfo = NewObject<UWorldThumbnailInfo>(NewWorld, NAME_None, RF_Transactional);
 
-	int32 WorldUnit = 100;
 	
-
 	if (!WorldPreset)
 	{
 		return nullptr;
 	}
 
-	FTransform DefaultTransform;
-
-	//Spawn Light Stuffs
-	ADirectionalLight* Light = NewWorld->SpawnActor<ADirectionalLight>(ADirectionalLight::StaticClass(), WorldPreset->MainLightTransform);
-	Light->SetBrightness(3);
-	ASphereReflectionCapture* Reflection = NewWorld->SpawnActor<ASphereReflectionCapture>(ASphereReflectionCapture::StaticClass(), DefaultTransform);
-
-
-	//Spawn Sky Sphere
-	NewWorld->SpawnActor<AActor>(WorldPreset->SkySphere, DefaultTransform);
-
-	//Get Texture Data
-	int32 WorldWidth;
-	int32 WorldHeight;
-
-	TArray<FColor> Pixels = GetTexturePixels(Filename, WorldWidth, WorldHeight);
-
-	//Spawn Floor
-	FTransform Transform;
-	Transform.SetLocation(FVector(0, 0, 0));
-	Transform.SetScale3D(FVector(WorldWidth, WorldHeight , 1));
-	NewWorld->SpawnActor<AStaticMeshActor>(WorldPreset->PresetActors["Floor"], Transform);
-
-	//Create World
-	CreateWorldFromTextureData(NewWorld, Pixels, WorldWidth, WorldHeight, WorldUnit);
+	int32 WorldUnit = 100;
+	WorldPreset->SpawnWorldActors(NewWorld, WorldUnit);
 
 
 	return NewWorld;
@@ -79,7 +54,7 @@ TArray<FColor> UBBMWorldFactory::GetTexturePixels(const FString& Filename, int32
 	if (!Texture)
 	{
 		ValidPath = false;
-		Texture = WorldPreset->Texture;
+		Texture = Texture;
 		if (!Texture)
 		{
 			return ResultPixels;
@@ -130,109 +105,13 @@ TArray<FColor> UBBMWorldFactory::GetTexturePixels(const FString& Filename, int32
 		Texture->Source.UnlockMip(0);
 	}
 
-		
+
 
 
 	return ResultPixels;
 
 }
 
-void UBBMWorldFactory::CreateWorldFromTextureData(UWorld* InWorld, const TArray<FColor> Pixels, const int32 InWidth, const int32 InHeight, const int32 WorldUnit)
-{
 
-	int32 XOffset = -InWidth * 0.5f * WorldUnit;
-	int32 YOffset = -InHeight * 0.5f * WorldUnit;
-
-
-	for (int32 Index = 0; Index < Pixels.Num(); Index++)
-	{
-		FColor Color = Pixels[Index];
-		if (Color.A != 0)
-		{
-			FTransform Transform;
-			int32 HalfWidth = Transform.GetScale3D().X * 0.5f * WorldUnit;
-			int32 HalfHeight = Transform.GetScale3D().Y * 0.5f * WorldUnit;
-			Transform.SetLocation(FVector(XOffset + HalfWidth, YOffset + HalfHeight, WorldUnit));
-
-			for (TPair<FString, FColor> Preset : WorldPreset->PresetColorPattern)
-			{
-				if (SpawnPreset(InWorld, Preset.Key, Color, Transform))
-				{
-					break;
-				}
-			}
-
-
-		}
-
-		XOffset += WorldUnit;
-
-		if (XOffset >= InWidth * 0.5f * WorldUnit)
-		{
-			XOffset = -InWidth * 0.5f * WorldUnit;
-			YOffset += WorldUnit;
-		}
-
-
-	}
-
-}
-
-bool UBBMWorldFactory::IsColorInToleranceRange(const FColor& InColorA, const FColor& InColorB, const float Tolerance)
-{
-	bool result = false;
-
-	
-
-	uint8 RA = InColorA.R;
-	uint8 GA = InColorA.G;
-	uint8 BA = InColorA.B;
-	uint8 AA = InColorA.A;
-
-
-
-	uint8 RB = InColorB.R;
-	uint8 GB = InColorB.G;
-	uint8 BB = InColorB.B;
-	uint8 AB = InColorB.A;
-
-	if (RA< RB - Tolerance || RA> RB + Tolerance)
-	{
-		return result;
-	}
-
-	if (GA< GB - Tolerance || GA> GB + Tolerance)
-	{
-		return result;
-	}
-
-	if (BA< BB - Tolerance || BA> BB + Tolerance)
-	{
-		return result;
-	}
-
-	if (AA< AB - Tolerance || AA> AB + Tolerance)
-	{
-		return result;
-	}
-
-	result = true;
-	return result;
-
-}
-
-bool UBBMWorldFactory::SpawnPreset(UWorld* InWorld, const FString& Key, const FColor& InColor, const FTransform& InTransform)
-{
-	bool result = false;
-
-	if (IsColorInToleranceRange(InColor, WorldPreset->PresetColorPattern[Key], ColorTolerance))
-	{
-
-		InWorld->SpawnActor<AActor>(WorldPreset->PresetActors[Key], InTransform);
-		result = true;
-	}
-
-	return result;
-}
 
 

@@ -29,10 +29,7 @@ public:
 
 	virtual UObject* FactoryCreateFile(UClass* InClass, UObject* InParent, FName InName, EObjectFlags Flags, const FString& Filename, const TCHAR* Parms, FFeedbackContext* Warn, bool& bOutOperationCanceled) override;
 	TArray<FColor> GetTexturePixels(const FString& Filename, int32& InWidth, int32& InHeight);
-	void CreateWorldFromTextureData(UWorld* InWorld, const TArray<FColor> Pixels, const int32 InWidth, const int32 InHeight, const int32 WorldUnit);
-	bool IsColorInToleranceRange(const FColor& InColorA, const FColor& InColorB, const float Tolerance);
-	bool SpawnPreset(UWorld* InWorld, const FString& PresetKey, const FColor& InColor, const FTransform& InTransform);
-
+	
 	UBBMWorldPreset* WorldPreset;
 	float ColorTolerance;
 };

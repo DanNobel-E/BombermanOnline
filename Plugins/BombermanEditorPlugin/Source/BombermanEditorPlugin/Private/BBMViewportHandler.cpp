@@ -7,14 +7,17 @@
 
 SBBMEditorViewport::SBBMEditorViewport() : PreviewScene(MakeShareable(new FAdvancedPreviewScene(FPreviewScene::ConstructionValues())))
 {
-
+	
 }
 SBBMEditorViewport::~SBBMEditorViewport()
 {
 	if (ViewportClient.IsValid())
 	{
 		ViewportClient->Viewport = nullptr;
+		ViewportClient.Reset();
 	}
+
+
 
 }
 
@@ -24,7 +27,6 @@ void SBBMEditorViewport::Tick(const FGeometry& AllottedGeometry, const double In
 	{
 
 		ViewportClient->Tick(InDeltaTime);
-		
 	}
 
 }
@@ -35,10 +37,6 @@ void SBBMEditorViewport::Construct(const FArguments& InArgs)
 {
 	SEditorViewport::Construct(SEditorViewport::FArguments());
 	
-
-	World = PreviewScene->GetWorld();
-
-	MakeEditorViewportClient();
 
 }
 
@@ -75,7 +73,7 @@ void SBBMEditorViewport::SetClient(TSharedPtr<FBBMViewportClient> InViewportClie
 TSharedRef<FEditorViewportClient> SBBMEditorViewport::MakeEditorViewportClient()
 {
 	
-	FBBMViewportClient* NewClient = new FBBMViewportClient(SharedThis(this), PreviewScene.ToSharedRef(), World);
+	FBBMViewportClient* NewClient = new FBBMViewportClient(SharedThis(this), PreviewScene.ToSharedRef());
 	ViewportClient = MakeShareable(NewClient);
 	return ViewportClient.ToSharedRef();
 
@@ -108,23 +106,12 @@ TSharedPtr<FExtender> SBBMEditorViewport::GetExtenders() const
 }
 
 
-void SBBMEditorViewport::SetWorld(UWorld* InWorld)
-{
-	if (InWorld)
-	{
-		if (ViewportClient.IsValid())
-		{
-			ViewportClient->SetWorld(InWorld);
 
-		}
-		World = InWorld;
-	}
-}
-FBBMViewportClient::FBBMViewportClient(const TSharedRef<SBBMEditorViewport>& InBBMEditorViewport, const TSharedRef<FAdvancedPreviewScene>& InPreviewScene, UWorld* InWorld)
+FBBMViewportClient::FBBMViewportClient(const TSharedRef<SBBMEditorViewport>& InBBMEditorViewport, const TSharedRef<FAdvancedPreviewScene>& InPreviewScene)
 	: FEditorViewportClient(nullptr, &InPreviewScene.Get(), StaticCastSharedRef<SEditorViewport>(InBBMEditorViewport))
 	, BBMEditorViewportPtr(InBBMEditorViewport)
 {
-	AdvancedPreviewScene = MakeShareable(static_cast<FAdvancedPreviewScene*>(PreviewScene));//&InPreviewScene.Get();
+	AdvancedPreviewScene = MakeShareable(static_cast<FAdvancedPreviewScene*>(PreviewScene));
 	EditorViewportWidget = BBMEditorViewportPtr;
 	
 	bUsesDrawHelper= true;
@@ -164,19 +151,8 @@ FBBMViewportClient::FBBMViewportClient(const TSharedRef<SBBMEditorViewport>& InB
 
 	bShowStats = true;
 	bUsingOrbitCamera = true;
-	SetCameraSpeedScalar(1000);
+	//SetCameraSpeedScalar(1000);
 
-	/** True if we should draw stats over the viewport */
-
-	
-
-	/** True if this level viewport canbe used to view Simulate in Editor sessions */
-	
-
-
-
-	//World = InWorld;
-	//SetWorld(InWorld);
 
 
 
@@ -184,18 +160,13 @@ FBBMViewportClient::FBBMViewportClient(const TSharedRef<SBBMEditorViewport>& InB
 
 FBBMViewportClient::~FBBMViewportClient()
 {
-
+	BBMEditorViewportPtr.Reset();
+	Viewport = nullptr;
+	AdvancedPreviewScene.Reset();
+	FEditorViewportClient::~FEditorViewportClient();
 }
 
-void FBBMViewportClient::SetWorld(UWorld* InWorld)
-{
-	if (InWorld)
-	{
-		AdvancedPreviewScene->GetWorld()->ChangeFeatureLevel(InWorld->FeatureLevel);
-		World = InWorld;
 
-	}
-}
 
 
 void FBBMViewportClient::Tick(float DeltaSeconds)
@@ -225,12 +196,14 @@ void FBBMViewportClient::DrawCanvas(FViewport& InViewport, FSceneView& View, FCa
 	FEditorViewportClient::DrawCanvas(InViewport, View, Canvas);
 }
 
+
+
 bool FBBMViewportClient::InputKey(const FInputKeyEventArgs& EventArgs)
 {
 	FVector Translation = FVector(0, 0, 0);
 	FRotator Rotator = FRotator::ZeroRotator;
 
-	if (EventArgs.Event == EInputEvent::IE_Repeat)
+	if (EventArgs.Event == EInputEvent::IE_Pressed)
 	{
 
 

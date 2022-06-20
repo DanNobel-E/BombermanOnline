@@ -10,6 +10,7 @@
 #include "BBMWorldFactory.h"
 #include "AssetRegistryModule.h"
 #include "SEditorViewport.h"
+#include "GameFramework/Character.h"
 
 
 
@@ -81,7 +82,7 @@ TSharedRef<SDockTab> FBBMWorldPresetEditor::SpawnPropertiesTab(const FSpawnTabAr
 				.VAlign(EVerticalAlignment::VAlign_Center)
 				.ContentPadding(FMargin(10,10))
 				.OnPressed_Raw(this,&FBBMWorldPresetEditor::OnGenerateWorldClicked)
-		]
+			]
 		];
 }
 
@@ -95,6 +96,7 @@ TSharedRef<SDockTab> FBBMWorldPresetEditor::SpawnViewportTab(const FSpawnTabArgs
 	{
 		Viewport = SNew(SBBMEditorViewport);
 		ViewportClient = Viewport->ViewportClient;
+		//Viewport->SetClient(ViewportClient);
 	}
 	
 
@@ -127,6 +129,11 @@ FBBMWorldPresetEditor::~FBBMWorldPresetEditor()
 	// On destruction we reset our tab and details view 
 	DetailsView.Reset();
 	PropertiesTab.Reset();
+	ViewportTab.Reset();
+
+	Viewport.Reset();
+	ViewportClient.Reset();
+	WorldPreset = nullptr;
 }
 
 FName FBBMWorldPresetEditor::GetToolkitFName() const
@@ -168,7 +175,7 @@ void FBBMWorldPresetEditor::SaveAsset_Execute()
 {
 	if (WorldPreset)
 	{
-		
+		WorldPreset->PostEditChange();
 		UPackage* Package = WorldPreset->GetPackage();
 		SavePackageHelper(Package, Package->GetName());
 
@@ -253,6 +260,7 @@ void FBBMWorldPresetEditor::OnGenerateWorldClicked()
 {
 	if (WorldPreset)
 	{
+		
 		UBBMWorldFactory* NewBBMWorldFactory = NewObject<UBBMWorldFactory>();
 		NewBBMWorldFactory->SetWorldPreset(WorldPreset);
 
@@ -272,7 +280,12 @@ void FBBMWorldPresetEditor::OnGenerateWorldClicked()
 		
 		if (NewWorld)
 		{
-			Viewport->SetWorld(NewWorld);
+			if (ViewportClient.IsValid())
+			{
+
+				WorldPreset->SpawnWorldActors(ViewportClient->GetWorld());
+			
+			}
 
 		}
 

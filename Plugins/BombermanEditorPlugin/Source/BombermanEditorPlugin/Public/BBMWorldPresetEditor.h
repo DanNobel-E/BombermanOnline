@@ -71,9 +71,7 @@ private:
 	/** Details view */
 	TSharedPtr<class IDetailsView> DetailsView;
 	TSharedPtr<SBBMEditorViewport> Viewport;
-	TSharedPtr<SViewport> ViewportWidget;
 	TSharedPtr<FBBMViewportClient> ViewportClient;
-	TSharedPtr<FSceneViewport> SceneViewport;
 
 
 	/**	The tab ids for all the tabs used */
