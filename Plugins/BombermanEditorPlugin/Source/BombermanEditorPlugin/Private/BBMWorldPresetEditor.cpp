@@ -69,9 +69,20 @@ TSharedRef<SDockTab> FBBMWorldPresetEditor::SpawnPropertiesTab(const FSpawnTabAr
 			// Provide the details view as this tab its content
 			SNew(SVerticalBox)
 			+ SVerticalBox::Slot()
-		[
+			[
 			DetailsView.ToSharedRef()
-		]
+			]
+			+ SVerticalBox::Slot()
+			.AutoHeight()
+			.VAlign(EVerticalAlignment::VAlign_Bottom)
+			[
+				SNew(SButton)
+				.Text(FText::FromString("Preview World"))
+				.HAlign(EHorizontalAlignment::HAlign_Center)
+				.VAlign(EVerticalAlignment::VAlign_Center)
+				.ContentPadding(FMargin(10, 10))
+				.OnPressed_Raw(this, &FBBMWorldPresetEditor::OnPreviewWorldClicked)
+			]
 			+ SVerticalBox::Slot()
 			.AutoHeight()
 			.VAlign(EVerticalAlignment::VAlign_Bottom)
@@ -175,10 +186,14 @@ void FBBMWorldPresetEditor::SaveAsset_Execute()
 {
 	if (WorldPreset)
 	{
+		WorldPreset->SaveConfig();
+		WorldPreset->MarkPackageDirty();
 		WorldPreset->PostEditChange();
 		UPackage* Package = WorldPreset->GetPackage();
-		SavePackageHelper(Package, Package->GetName());
-
+		FString AssetName = WorldPreset->GetName();
+		FString AssetPath = FString::Printf(TEXT("%s%s%s"), *FPaths::ProjectContentDir(), *AssetName, *FPackageName::GetAssetPackageExtension());
+		bool bResult= UPackage::SavePackage(Package, WorldPreset, EObjectFlags::RF_Standalone | EObjectFlags::RF_Public,*AssetPath);
+		UE_LOG(LogTemp, Warning,TEXT("%b"),bResult);
 	}
 
 }
@@ -254,7 +269,19 @@ void FBBMWorldPresetEditor::InitBBMWorldPresetEditor(const EToolkitMode::Type Mo
 	{
 		DetailsView->SetObject((UObject*)WorldPreset);
 	}
+
+	UpdateEditorViewport();
+
+
 }
+
+void FBBMWorldPresetEditor::OnPreviewWorldClicked()
+{
+	ResetEditorViewport();
+	UpdateEditorViewport();
+
+}
+
 
 void FBBMWorldPresetEditor::OnGenerateWorldClicked()
 {
@@ -280,13 +307,48 @@ void FBBMWorldPresetEditor::OnGenerateWorldClicked()
 		
 		if (NewWorld)
 		{
-			if (ViewportClient.IsValid())
+			UpdateEditorViewport();
+
+		}
+
+	}
+
+
+}
+
+void FBBMWorldPresetEditor::UpdateEditorViewport()
+{
+	if (ViewportClient.IsValid())
+	{
+		if (WorldPreset)
+		{
+			WorldPreset->SpawnWorldActors(ViewportClient->GetWorld());
+
+		}
+
+	}
+
+}
+
+
+void FBBMWorldPresetEditor::ResetEditorViewport()
+{
+	if (ViewportClient.IsValid())
+	{
+		
+		TArray<AActor*> Actors = ViewportClient->GetWorld()->GetCurrentLevel()->Actors;
+
+		for (AActor* Actor : Actors)
+		{
+			if (Actor)
 			{
 
-				WorldPreset->SpawnWorldActors(ViewportClient->GetWorld());
-			
-			}
 
+				if (!Actor->IsPendingKill())
+				{
+					Actor->Destroy();
+				}
+			}
 		}
 
 	}

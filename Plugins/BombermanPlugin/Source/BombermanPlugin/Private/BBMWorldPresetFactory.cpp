@@ -42,12 +42,13 @@ UObject* UBBMWorldPresetFactory::FactoryCreateNew(UClass* InClass, UObject* InPa
 	UObject* ObjectAsset = StaticDuplicateObjectEx(Params);
 	ObjectAsset->Modify();
 	ObjectAsset->Rename(*InName.ToString());
-	ObjectAsset->PostEditChange();
 	SavePackageHelper(Package, PackageName);
 	
 	// Inform asset registry
 	AssetRegistry.AssetCreated(ObjectAsset);
-
+	ObjectAsset->MarkPackageDirty();
+	ObjectAsset->PostEditChange();
+	ObjectAsset->AddToRoot();
 
 	return ObjectAsset;
 

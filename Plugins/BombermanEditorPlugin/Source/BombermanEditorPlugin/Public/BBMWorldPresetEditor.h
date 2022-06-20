@@ -51,9 +51,12 @@ public:
 	virtual void SetWorldPreset(UBBMWorldPreset* InWorldPreset) override;
 	/** End ICustomAssetEditor initerface */
 
+	virtual void OnPreviewWorldClicked();
 	virtual void OnGenerateWorldClicked();
 
 	virtual void SaveAsset_Execute() override;
+	virtual void UpdateEditorViewport();
+	virtual void ResetEditorViewport();
 
 	UWorld* ViewportWorld;
 
