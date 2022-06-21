@@ -10,6 +10,7 @@ UBBMWorldFactory::UBBMWorldFactory(const FObjectInitializer& ObjectInitializer)
 	bCreateNew = true;
 	SupportedClass = UWorld::StaticClass();
 	ColorTolerance = 10.f;
+	WorldPreset = nullptr;
 }
 
 void UBBMWorldFactory::SetWorldPreset(UBBMWorldPreset* InWorldPreset)
@@ -30,38 +31,44 @@ UObject* UBBMWorldFactory::FactoryCreateFile(UClass* InClass, UObject* InParent,
 	NewWorld->SetFlags(Flags);
 	NewWorld->ThumbnailInfo = NewObject<UWorldThumbnailInfo>(NewWorld, NAME_None, RF_Transactional);
 
-	
 	if (!WorldPreset)
 	{
 		return nullptr;
 	}
 
 	int32 WorldUnit = 100;
+
+	if (Filename != "") 
+	{
+		//Get Texture Data
+		int32 WorldWidth;
+		int32 WorldHeight;
+		TArray<FColor> Pixels = GetTexturePixelsByFilename(Filename, WorldWidth, WorldHeight);
+
+		WorldPreset->SpawnWorldEnviroment(NewWorld);
+		WorldPreset->SpawnFloor(NewWorld, WorldWidth, WorldHeight);
+		WorldPreset->CreateWorldFromTextureData(NewWorld, Pixels, WorldWidth, WorldHeight, WorldUnit);
+
+		return NewWorld;
+
+	}
+	
 	WorldPreset->SpawnWorldActors(NewWorld, WorldUnit);
-
-
+	
 	return NewWorld;
 }
 
 
-TArray<FColor> UBBMWorldFactory::GetTexturePixels(const FString& Filename, int32& InWidth, int32& InHeight)
+TArray<FColor> UBBMWorldFactory::GetTexturePixelsByFilename(const FString& Filename, int32& InWidth, int32& InHeight)
 {
 
 	TArray<FColor> ResultPixels;
-	bool ValidPath = true;
 	UTexture2D* Texture = FImageUtils::ImportFileAsTexture2D(Filename);
 
 	if (!Texture)
 	{
-		ValidPath = false;
-		Texture = Texture;
-		if (!Texture)
-		{
-			return ResultPixels;
-
-		}
+		return WorldPreset->GetTexturePixels(InWidth, InHeight);
 	}
-
 
 	InWidth = Texture->GetSizeX();
 	InHeight = Texture->GetSizeY();
@@ -70,44 +77,17 @@ TArray<FColor> UBBMWorldFactory::GetTexturePixels(const FString& Filename, int32
 	ResultPixels.SetNumZeroed(Size);
 
 
-	if (ValidPath)
+	FByteBulkData Data = Texture->PlatformData->Mips[0].BulkData;
+	FColor* Pixels = static_cast<FColor*>(Data.Lock(LOCK_READ_ONLY));
+
+	for (int32 Index = 0; Index < ResultPixels.Num(); Index++)
 	{
-		FByteBulkData Data = Texture->PlatformData->Mips[0].BulkData;
-		FColor* Pixels = static_cast<FColor*>(Data.Lock(LOCK_READ_ONLY));
-
-		for (int32 Index = 0; Index < ResultPixels.Num(); Index++)
-		{
-			FColor* Color = Pixels + Index;
-			ResultPixels[Index] = *Color;
-		}
-
-		Data.Unlock();
-	}
-	else
-	{
-		uint8* Data = Texture->Source.LockMip(0);
-
-		int32 ByteOffset = 0;
-
-		for (int32 Index = 0; Index < ResultPixels.Num(); Index++)
-		{
-			uint8* B = Data + ByteOffset + 0;
-			uint8* G = Data + ByteOffset + 1;
-			uint8* R = Data + ByteOffset + 2;
-			uint8* A = Data + ByteOffset + 3;
-
-			FColor Color = FColor(*R, *G, *B, *A);
-			ResultPixels[Index] = Color;
-			ByteOffset += 4;
-
-		}
-
-		Texture->Source.UnlockMip(0);
+		FColor* Color = Pixels + Index;
+		ResultPixels[Index] = *Color;
 	}
 
-
-
-
+	Data.Unlock();
+	
 	return ResultPixels;
 
 }

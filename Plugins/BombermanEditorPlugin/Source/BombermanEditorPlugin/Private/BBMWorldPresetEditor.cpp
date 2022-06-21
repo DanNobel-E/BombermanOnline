@@ -287,6 +287,7 @@ void FBBMWorldPresetEditor::OnGenerateWorldClicked()
 {
 	if (WorldPreset)
 	{
+
 		
 		UBBMWorldFactory* NewBBMWorldFactory = NewObject<UBBMWorldFactory>();
 		NewBBMWorldFactory->SetWorldPreset(WorldPreset);
@@ -307,7 +308,8 @@ void FBBMWorldPresetEditor::OnGenerateWorldClicked()
 		
 		if (NewWorld)
 		{
-			UpdateEditorViewport();
+
+			OnPreviewWorldClicked();
 
 		}
 

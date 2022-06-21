@@ -27,6 +27,25 @@ UBBMWorldPreset::UBBMWorldPreset()
 
 UWorld* UBBMWorldPreset::SpawnWorldActors(UWorld* InWorld, const int32 WorldUnit)
 {
+	SpawnWorldEnviroment(InWorld);
+
+	//Get Texture Data
+	int32 WorldWidth;
+	int32 WorldHeight;
+
+	TArray<FColor> Pixels = GetTexturePixels(WorldWidth, WorldHeight);
+
+	//Spawn Floor
+	SpawnFloor(InWorld, WorldWidth, WorldHeight);
+
+	//Create World
+	CreateWorldFromTextureData(InWorld, Pixels, WorldWidth, WorldHeight, WorldUnit);
+
+	return InWorld;
+}
+
+void UBBMWorldPreset::SpawnWorldEnviroment(UWorld* InWorld)
+{
 	FTransform DefaultTransform;
 
 	//Spawn Light Stuffs
@@ -38,24 +57,16 @@ UWorld* UBBMWorldPreset::SpawnWorldActors(UWorld* InWorld, const int32 WorldUnit
 	//Spawn Sky Sphere
 	InWorld->SpawnActor<AActor>(SkySphere, DefaultTransform);
 
-	//Get Texture Data
-	int32 WorldWidth;
-	int32 WorldHeight;
-
-	TArray<FColor> Pixels = GetTexturePixels(WorldWidth, WorldHeight);
-
-	//Spawn Floor
-	FTransform Transform;
-	Transform.SetLocation(FVector(0, 0, 0));
-	Transform.SetScale3D(FVector(WorldWidth, WorldHeight, 1));
-	InWorld->SpawnActor<AStaticMeshActor>(PresetActors["Floor"], Transform);
-
-	//Create World
-	CreateWorldFromTextureData(InWorld, Pixels, WorldWidth, WorldHeight, WorldUnit);
-
-	return InWorld;
 }
 
+void UBBMWorldPreset::SpawnFloor(UWorld* InWorld, const int32 InWidth, const int32 InHeight)
+{
+	FTransform Transform;
+	Transform.SetLocation(FVector(0, 0, 0));
+	Transform.SetScale3D(FVector(InWidth, InHeight, 1));
+	InWorld->SpawnActor<AStaticMeshActor>(PresetActors["Floor"], Transform);
+
+}
 
 TArray<FColor> UBBMWorldPreset::GetTexturePixels(int32& InWidth, int32& InHeight)
 {
@@ -105,7 +116,7 @@ TArray<FColor> UBBMWorldPreset::GetTexturePixels(int32& InWidth, int32& InHeight
 }
 
 
-void UBBMWorldPreset::CreateWorldFromTextureData(UWorld* InWorld, const TArray<FColor> Pixels, const int32 InWidth, const int32 InHeight, const int32 WorldUnit)
+UWorld* UBBMWorldPreset::CreateWorldFromTextureData(UWorld* InWorld, const TArray<FColor> Pixels, const int32 InWidth, const int32 InHeight, const int32 WorldUnit)
 {
 
 	int32 XOffset = -InWidth * 0.5f * WorldUnit;
@@ -143,6 +154,8 @@ void UBBMWorldPreset::CreateWorldFromTextureData(UWorld* InWorld, const TArray<F
 
 
 	}
+
+	return InWorld;
 
 }
 

@@ -28,7 +28,7 @@ public:
 	void SetWorldPreset(UBBMWorldPreset* InWorldPreset);
 
 	virtual UObject* FactoryCreateFile(UClass* InClass, UObject* InParent, FName InName, EObjectFlags Flags, const FString& Filename, const TCHAR* Parms, FFeedbackContext* Warn, bool& bOutOperationCanceled) override;
-	TArray<FColor> GetTexturePixels(const FString& Filename, int32& InWidth, int32& InHeight);
+	TArray<FColor> GetTexturePixelsByFilename(const FString& Filename, int32& InWidth, int32& InHeight);
 	
 	UBBMWorldPreset* WorldPreset;
 	float ColorTolerance;

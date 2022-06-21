@@ -56,7 +56,9 @@ public:
 	UWorld* SpawnWorldActors(UWorld* InWorld, const int32 WorldUnit = 100);
 
 	TArray<FColor> GetTexturePixels(int32& InWidth, int32& InHeight);
-	void CreateWorldFromTextureData(UWorld* InWorld, const TArray<FColor> Pixels, const int32 InWidth, const int32 InHeight, const int32 WorldUnit);
+	UWorld* CreateWorldFromTextureData(UWorld* InWorld, const TArray<FColor> Pixels, const int32 InWidth, const int32 InHeight, const int32 WorldUnit);
 	bool IsColorInToleranceRange(const FColor& InColorA, const FColor& InColorB, const float Tolerance);
+	void SpawnWorldEnviroment(UWorld* InWorld);
+	void SpawnFloor(UWorld* InWorld, const int32 InWidth, const int32 InHeight);
 	bool SpawnPreset(UWorld* InWorld, const FString& PresetKey, const FColor& InColor, const FTransform& InTransform);
 };
