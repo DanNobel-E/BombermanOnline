@@ -14,18 +14,20 @@ Right click on Content Browser or inherit from BBMWorldPreset to instantiate you
 
 | Parameter     | Description   |
 | ------------- | ------------- |
+|**Color Tolerance**| Texture *color parser* accuracy.|
 | **World Texture** | A *2D Texture* which describes the world to create. Texture Size is converted to unreal unit meters.|
 | **PresetColorPattern** | A *String/Color Map*. World Texture bytes array is parsed according to the specified colors.|
 | **PresetActors** | A *String/Actor Map*. Strings must match ColorPresetMap ones. Actors are spawned on PresetColorPattern colors map relative positions.|
 | **Light** | World Sky Sphere and directional light parameters. |
 | **Character** | The *Pawn* to spawn for players.|
 
+![Bomberman - Unreal Editor 21_06_2022 11_31_062](https://user-images.githubusercontent.com/60443583/174768216-95272d79-71fb-4f72-9c14-a1c4f600d112.png)
 
-> **Fill details tab, then click on Generate World button to create a your Bomberman World.**
+Fill the *Details* tab, then select an action by clicking on the matching button:
+* **Preview World**: preview yuor Bomberman World looks inside the *Editor Viewport*.
+* **Generate World**: preview and generate your Bomberman World as an *Unreal UWorld*, accessible through Content Browser.
 
-
-![NewBBMWorldPreset 11_06_2022 13_17_54](https://user-images.githubusercontent.com/60443583/173185675-52bb3649-d496-4f1c-9622-39e6975a6caf.png)
-
+![Bomberman - Unreal Editor 21_06_2022 11_31_06](https://user-images.githubusercontent.com/60443583/174772443-df80adff-667a-464d-83bc-f25970dbcef9.png)
 
 > **You can also select your *BBM World Preset* assets on Content Browser and right click to show *Asset Menu*. Then click on *Create BBM World* entry to generate all Worlds at once.**
 
