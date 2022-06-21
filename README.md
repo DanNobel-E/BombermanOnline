@@ -12,6 +12,7 @@ Right click on Content Browser or inherit from BBMWorldPreset to instantiate you
 > World Preset Editor details tab exposes the following parameters:
 
 
+
 | Parameter     | Description   |
 | ------------- | ------------- |
 |**Color Tolerance**| Texture *color parser* accuracy.|
@@ -29,6 +30,17 @@ Fill the *Details* tab, then select an action by clicking on the matching button
 
 ![Bomberman - Unreal Editor 21_06_2022 11_31_06](https://user-images.githubusercontent.com/60443583/174772443-df80adff-667a-464d-83bc-f25970dbcef9.png)
 
+
+https://user-images.githubusercontent.com/60443583/174780055-f5d082f3-9395-4a05-8550-722be5385441.mp4
+
+
+https://user-images.githubusercontent.com/60443583/174780046-7767fda9-433c-4ba8-ab5d-d95e78af3ec1.mp4
+
+
+https://user-images.githubusercontent.com/60443583/174780038-24c60cd8-7c22-48b8-bd96-62a8e55e30f9.mp4
+
+
+
 > **You can also select your *BBM World Preset* assets on Content Browser and right click to show *Asset Menu*. Then click on *Create BBM World* entry to generate all Worlds at once.**
 
 
@@ -40,7 +52,6 @@ Fill the *Details* tab, then select an action by clicking on the matching button
 
 
 https://user-images.githubusercontent.com/60443583/173186519-d7b21873-bd5a-4724-91d4-2b47afdfc971.mp4
-
 
 
 ## Bomberman Online Demo
