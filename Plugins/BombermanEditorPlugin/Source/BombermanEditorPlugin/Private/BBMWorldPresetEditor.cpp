@@ -187,13 +187,12 @@ void FBBMWorldPresetEditor::SaveAsset_Execute()
 	if (WorldPreset)
 	{
 		WorldPreset->SaveConfig();
-		WorldPreset->MarkPackageDirty();
 		WorldPreset->PostEditChange();
 		UPackage* Package = WorldPreset->GetPackage();
 		FString AssetName = WorldPreset->GetName();
 		FString AssetPath = FString::Printf(TEXT("%s%s%s"), *FPaths::ProjectContentDir(), *AssetName, *FPackageName::GetAssetPackageExtension());
 		bool bResult= UPackage::SavePackage(Package, WorldPreset, EObjectFlags::RF_Standalone | EObjectFlags::RF_Public,*AssetPath);
-		UE_LOG(LogTemp, Warning,TEXT("%b"),bResult);
+		WorldPreset->MarkPackageDirty();
 	}
 
 }

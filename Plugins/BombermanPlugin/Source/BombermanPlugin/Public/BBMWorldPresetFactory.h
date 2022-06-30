@@ -4,8 +4,8 @@
 
 #include "BBMWorldPreset.h"
 #include "CoreMinimal.h"
-#include "AssetRegistryModule.h"
 #include "Factories/Factory.h"
+#include "AssetRegistryModule.h"
 #include "PackageHelperFunctions.h"
 #include "AssetRegistry/AssetRegistryHelpers.h"
 #include "AssetToolsModule.h"
@@ -23,7 +23,7 @@ public:
 
 	UBBMWorldPresetFactory(const FObjectInitializer& ObjectInitializer);
 
-	UObject* UBBMWorldPresetFactory::FactoryCreateNew(UClass* InClass, UObject* InParent, FName InName, EObjectFlags Flags, UObject* Context, FFeedbackContext* Warn, FName CallingContext) override;
+	UObject* FactoryCreateNew(UClass* InClass, UObject* InParent, FName InName, EObjectFlags Flags, UObject* Context, FFeedbackContext* Warn, FName CallingContext) override;
 
 
 };

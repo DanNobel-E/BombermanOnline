@@ -24,8 +24,8 @@ void UBBMWorldFactory::SetWorldPreset(UBBMWorldPreset* InWorldPreset)
 
 UObject* UBBMWorldFactory::FactoryCreateFile(UClass* InClass, UObject* InParent, FName InName, EObjectFlags Flags, const FString& Filename, const TCHAR* Parms, FFeedbackContext* Warn, bool& bOutOperationCanceled)
 {
-	const bool bAddToRoot = false;
-	UWorld* NewWorld = UWorld::CreateWorld(EWorldType::Inactive, false, InName, Cast<UPackage>(InParent), bAddToRoot, ERHIFeatureLevel::Num);
+	const bool bAddToRoot = true;
+	UWorld* NewWorld = UWorld::CreateWorld(EWorldType::Inactive, true, InName, Cast<UPackage>(InParent), bAddToRoot, ERHIFeatureLevel::Num);
 	NewWorld->Modify();
 	GEditor->InitBuilderBrush(NewWorld);
 	NewWorld->SetFlags(Flags);
@@ -75,7 +75,7 @@ TArray<FColor> UBBMWorldFactory::GetTexturePixelsByFilename(const FString& Filen
 
 	int32 Size = InWidth * InHeight;
 	ResultPixels.SetNumZeroed(Size);
-
+	
 
 	FByteBulkData Data = Texture->PlatformData->Mips[0].BulkData;
 	FColor* Pixels = static_cast<FColor*>(Data.Lock(LOCK_READ_ONLY));
